@@ -6,7 +6,10 @@ import Link from "next/link";
 
 const Navbar: React.FC = () => {
     return (
-        <nav className="w-full h-12 p-5 flex items-center justify-between">
+        <nav className="
+            z-[100] fixed top-0 left-0 w-full h-12 p-5
+            bg-white
+            flex items-center justify-between">
             <div>
                 <span>
                     Complexify
