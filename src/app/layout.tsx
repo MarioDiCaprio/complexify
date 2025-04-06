@@ -2,6 +2,7 @@ import "./globals.css";
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import Navbar from "@/components/app/Navbar";
+import Providers from "@/components/Providers";
 
 
 const geistSans = Geist({
@@ -23,11 +24,13 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
     return (
         <html lang="en">
-            <body className={`w-screen min-h-screen ${geistSans.variable} ${geistMono.variable} antialiased flex flex-col`}>
-                <Navbar />
-                <main className="grow flex flex-col">
-                    {children}
-                </main>
+            <body className={`w-screen min-h-screen ${geistSans.variable} ${geistMono.variable} antialiased bg-white text-black`}>
+                <Providers>
+                    <Navbar />
+                    <main className="relative pt-12 min-h-screen">
+                        {children}
+                    </main>
+                </Providers>
             </body>
         </html>
     );
