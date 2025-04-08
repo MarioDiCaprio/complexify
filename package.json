@@ -6,7 +6,8 @@
     "dev": "next dev --turbopack",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "build-parser": "antlr4ts -visitor \"src/parser/Complexify.g4\" -o \"src/parser/generated\""
   },
   "dependencies": {
     "@heroui/react": "^2.7.5",
