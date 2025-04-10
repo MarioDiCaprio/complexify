@@ -1,6 +1,7 @@
-import {ANTLRInputStream, CommonTokenStream} from "antlr4ts";
+import {CharStreams, CommonTokenStream} from "antlr4ts";
 import { ComplexifyLexer } from "./generated/src/parser/ComplexifyLexer";
 import { ComplexifyParser } from "./generated/src/parser/ComplexifyParser";
+import ComplexifyGLSLVisitor from "@/parser/visitors/ComplexifyGLSLVisitor";
 
 /**
  * This function parses the given input. It converts LaTeX math into
@@ -8,15 +9,22 @@ import { ComplexifyParser } from "./generated/src/parser/ComplexifyParser";
  * @param input The code as LaTeX math
  * @returns The code in GLSL
  */
-export function parse(input: string | undefined): string {
+export function parseToGLSL(input: string | undefined): string {
     if (!input) {
         return '';
     }
-    const chars = new ANTLRInputStream(input);
-    const lexer = new ComplexifyLexer(chars);
-    const tokens = new CommonTokenStream(lexer);
-    const parser = new ComplexifyParser(tokens);
-    parser.removeErrorListeners();
-    parser.parse();
-    return parser.result;
+    const charStream = CharStreams.fromString(input);
+    const lexer = new ComplexifyLexer(charStream);
+    const tokenStream = new CommonTokenStream(lexer);
+    const parser = new ComplexifyParser(tokenStream);
+
+    try {
+        const parseContext = parser.parse();
+        const glslVisitor = new ComplexifyGLSLVisitor();
+
+        return glslVisitor.visitParse(parseContext);
+    } catch (error) {
+        console.error(error);
+        return "";
+    }
 }

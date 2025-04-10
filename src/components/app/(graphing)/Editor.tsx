@@ -9,7 +9,7 @@ import { IoMdAdd as AddIcon } from "react-icons/io";
 import { IoMdSettings as SettingsIcon } from "react-icons/io";
 import { FaCamera as CameraIcon } from "react-icons/fa";
 import { MdKeyboardDoubleArrowLeft as CloseIcon } from "react-icons/md";
-import {parse} from "@/parser/complexify";
+import {parseToGLSL} from "@/parser/complexify";
 
 
 const Editor: React.FC = () => {
@@ -85,9 +85,11 @@ const Editor: React.FC = () => {
                     {cachedEquations.map((latex, index) => (
                         <div key={index} className="mb-3">
                             <p>{latex}</p>
-                            <p>{parse(latex)}</p>
                         </div>
                     ))}
+                    <div className="mbt-5">
+                        {parseToGLSL(cachedEquations.filter(e => e).join(';'))}
+                    </div>
                 </div>
             </motion.section>
         </div>
