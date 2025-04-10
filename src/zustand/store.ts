@@ -3,6 +3,11 @@ import {create} from "zustand/react";
 
 export interface State {
     equations: string[];
+    graphSettings: {
+        showDarkGridLines: boolean;
+        showLightGridLines: boolean;
+        isMinimalThemeEnabled: boolean;
+    }
 }
 
 export interface Actions {
@@ -13,7 +18,12 @@ export interface Actions {
 }
 
 export const useStore = create<State & Actions>((set) => ({
-    equations: ['f(x) = x'],
+    equations: ['@f(x) = x'],
+    graphSettings: {
+        showDarkGridLines: true,
+        showLightGridLines: true,
+        isMinimalThemeEnabled: false
+    },
     setEquations: (equations) => set(() => ({
         equations
     })),
