@@ -2,7 +2,7 @@
  * Creates a string that represents a function with two arguments.
  * Since more than two arguments can be given, the remaining arguments
  * are nested inside the function. The result is a string that represents
- * the GLSL version of the expression (defined under `src/public/glsl/complexMath.glsl`).
+ * the GLSL version of the expression.
 
  * Example: Parse the expression `2 + 4 + 6`
  * - start: `add(`

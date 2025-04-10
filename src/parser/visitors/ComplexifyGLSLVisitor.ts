@@ -21,10 +21,10 @@ export default class ComplexifyGLSLVisitor implements Required<ComplexifyVisitor
             return result;
         }
         if (this.constants.includes(this.plottedSymbol)) {
-            result += `\n\nplottedFunction(vec2 arg) {\n    return ${this.plottedSymbol}_CONST;\n}`;
+            result += `\n\nvec2 plottedFunction(vec2 arg) {\n    return ${this.plottedSymbol}_CONST;\n}`;
             return result;
         }
-        result += `\n\nplottedFunction(vec2 arg) {\n    return ${this.plottedSymbol}_FUNC(arg);\n}`;
+        result += `\n\nvec2 plottedFunction(vec2 arg) {\n    return ${this.plottedSymbol}_FUNC(arg);\n}`;
         return result;
     }
 
@@ -93,7 +93,7 @@ export default class ComplexifyGLSLVisitor implements Required<ComplexifyVisitor
         if (terms.length == 1) {
             return terms[0];
         }
-        return group('multC(', ', ', ')', terms);
+        return group('multiplyC(', ', ', ')', terms);
     }
 
     visitFraction(ctx: FractionContext): string {
@@ -112,7 +112,7 @@ export default class ComplexifyGLSLVisitor implements Required<ComplexifyVisitor
         if (!ctx.POW()) {
             return base;
         }
-        const exponent = this.visitAddition(ctx._exponent);
+        const exponent = (ctx._atomic_exponent)? this.visitAtom(ctx._atomic_exponent) : this.visitAddition(ctx._composite_exponent);
         return `powC(${base}, ${exponent})`;
     }
 
@@ -131,31 +131,31 @@ export default class ComplexifyGLSLVisitor implements Required<ComplexifyVisitor
             const arg = this.visitAddition(ctx._func_predef_arg);
             switch (ctx._func_predef.type) {
                 case Lexer.SIN:
-                    return `sin_FUNC(${arg})`;
+                    return `sinC(${arg})`;
                 case Lexer.COS:
-                    return `cos_FUNC(${arg})`;
+                    return `cosC(${arg})`;
                 case Lexer.TAN:
-                    return `tan_FUNC(${arg})`;
+                    return `tanC(${arg})`;
                 case Lexer.COT:
-                    return `cot_FUNC(${arg})`;
+                    return `cotC(${arg})`;
                 case Lexer.SEC:
-                    return `sec_FUNC(${arg})`;
+                    return `secC(${arg})`;
                 case Lexer.CSC:
-                    return `csc_FUNC(${arg})`;
+                    return `cscC(${arg})`;
                 case Lexer.SINH:
-                    return `sinh_FUNC(${arg})`;
+                    return `sinhC(${arg})`;
                 case Lexer.COSH:
-                    return `cosh_FUNC(${arg})`;
+                    return `coshC(${arg})`;
                 case Lexer.TANH:
-                    return `tanh_FUNC(${arg})`;
+                    return `tanhC(${arg})`;
                 case Lexer.LOG:
-                    return `log_FUNC(${arg})`;
+                    return `logC(${arg})`;
                 case Lexer.LN:
-                    return `ln_FUNC(${arg})`;
+                    return `lnC(${arg})`;
                 case Lexer.RE:
-                    return `Re_FUNC(${arg})`;
+                    return `ReC(${arg})`;
                 case Lexer.IM:
-                    return `Im_FUNC(${arg})`;
+                    return `ImC(${arg})`;
             }
         }
         if (ctx._func_operatorname) {

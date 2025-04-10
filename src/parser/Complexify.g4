@@ -22,7 +22,7 @@ assignment:
 
 addition returns [value: string | undefined]:
     sign1=(PLUS|MINUS)? m1=multiplication
-    (sign2+=(PLUS|MINUS) m2+=multiplication)+
+    (sign2+=(PLUS|MINUS) m2+=multiplication)*
 ;
 
 
@@ -40,7 +40,7 @@ fraction returns [value: string | undefined]:
 // power
 power returns [value: string | undefined]:
     // power
-    base=atom (POW LEFT_BRACE exponent=addition RIGHT_BRACE)?
+    base=atom (POW (atomic_exponent=atom | LEFT_BRACE composite_exponent=addition RIGHT_BRACE))?
     |
     // square root
     SQRT LEFT_BRACE sqrt=addition RIGHT_BRACE
@@ -53,11 +53,11 @@ atom returns [value: string | undefined]:
     const_predef=(I | E | PI)
     |
     // predefined functions
-    ESCAPE func_predef=(SIN | COS | TAN | COT | SEC | CSC | SINH | COSH | TANH | LOG | LN | RE | IM)
+    func_predef=(SIN | COS | TAN | COT | SEC | CSC | SINH | COSH | TANH | LOG | LN | RE | IM)
     LEFT func_predef_arg=addition RIGHT
     |
     // predefined functions (with \operatorname{...})
-    ESCAPE 'operatorname'
+    OPERATORNAME
     LEFT_BRACE func_operatorname=CIS RIGHT_BRACE
     LEFT func_operatorname_arg=addition RIGHT
     |
