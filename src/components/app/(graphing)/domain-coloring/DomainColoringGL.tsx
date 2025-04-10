@@ -165,7 +165,7 @@ const DomainColoringGL: React.FC = () => {
             if (shaderRef.current?.uniforms) {
                 const domX = shaderRef.current.uniforms['domainX'].value;
                 const domY = shaderRef.current.uniforms['domainY'].value;
-                const fac = (wheelProps.event.deltaY > 0)? 1 + 0.055 : 1 - 0.055;
+                const fac = (wheelProps.event.deltaY > 0)? 1 + 0.04 : 1 - 0.04;
                 const scaledX = scaleInterval(fac, {min: domX.x, max: domX.y});
                 const scaledY = scaleInterval(fac, {min: domY.x, max: domY.y});
                 setUniformDomain(scaledX, scaledY);
@@ -176,7 +176,7 @@ const DomainColoringGL: React.FC = () => {
                 const domX = shaderRef.current.uniforms['domainX'].value;
                 const domY = shaderRef.current.uniforms['domainY'].value;
                 const [pinchDX, pinchDY] = pinchProps.delta;
-                const fac = (pinchDX + pinchDY > 0)? 1 + 0.055 : 1 - 0.055;
+                const fac = (pinchDX + pinchDY > 0)? 1 + 0.03 : 1 - 0.03;
                 const scaledX = scaleInterval(fac, {min: domX.x, max: domX.y});
                 const scaledY = scaleInterval(fac, {min: domY.x, max: domY.y});
                 setUniformDomain(scaledX, scaledY);
