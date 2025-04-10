@@ -12,6 +12,7 @@ import {
 } from "@/shaders/utils";
 import {GLSL_FOR_DOMAIN_COLORING} from "@/shaders/shaders";
 import {useStore} from "@/zustand/store";
+import MouseInfoPanel from "@/components/app/(graphing)/domain-coloring/MouseInfoPanel";
 
 
 ////////////////////////////////////////////////////////////////////////////////////////
@@ -116,6 +117,13 @@ const DomainColoringGL: React.FC = () => {
 
     ////////////////////////////////////////////////////////////////////////////////////////
 
+    const [uniformDomains, setUniformDomains] = useState<{ x: Interval, y: Interval }>({
+        x: {min: minX, max: maxX},
+        y: {min: minY, max: maxY},
+    });
+
+    ////////////////////////////////////////////////////////////////////////////////////////
+
     /**
      * Calculates the viewport's dimensions in pixels.
      * On the server (=SSR), returns 0x0 dimensions.
@@ -158,6 +166,10 @@ const DomainColoringGL: React.FC = () => {
                 // noinspection JSSuspiciousNameCombination
                 domY.x += offsetY;
                 domY.y += offsetY;
+                setUniformDomains({
+                    x: { min: domX.x, max: domX.y },
+                    y: { min: domY.x, max: domY.y },
+                });
             }
         },
         /** Zooms the plot */
@@ -169,6 +181,10 @@ const DomainColoringGL: React.FC = () => {
                 const scaledX = scaleInterval(fac, {min: domX.x, max: domX.y});
                 const scaledY = scaleInterval(fac, {min: domY.x, max: domY.y});
                 setUniformDomain(scaledX, scaledY);
+                setUniformDomains({
+                    x: { min: domX.x, max: domX.y },
+                    y: { min: domY.x, max: domY.y },
+                });
             }
         },
         onPinch: pinchProps => {
@@ -180,6 +196,10 @@ const DomainColoringGL: React.FC = () => {
                 const scaledX = scaleInterval(fac, {min: domX.x, max: domX.y});
                 const scaledY = scaleInterval(fac, {min: domY.x, max: domY.y});
                 setUniformDomain(scaledX, scaledY);
+                setUniformDomains({
+                    x: { min: domX.x, max: domX.y },
+                    y: { min: domY.x, max: domY.y },
+                });
             }
         }
     }, { target: containerRef });
@@ -217,6 +237,7 @@ const DomainColoringGL: React.FC = () => {
                     </mesh>
                 </Canvas>
             </div>
+            <MouseInfoPanel screen={viewport} domain={uniformDomains} />
         </>
 
     );
