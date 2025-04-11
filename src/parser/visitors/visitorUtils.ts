@@ -22,4 +22,11 @@ export function group(start: string, delimiter: string, end: string, args: strin
         return args[0];
     }
     return start + args[0] + delimiter + group(start, delimiter, end, args.slice(1)) + end;
-};
+}
+
+export function applyConvolutions<T>(args: T[], convolution: (a: T, b: T) => T): T {
+    if (args.length == 1) {
+        return args[0];
+    }
+    return convolution(args[0], applyConvolutions(args.slice(1), convolution));
+}

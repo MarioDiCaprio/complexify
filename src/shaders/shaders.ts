@@ -26,8 +26,6 @@ interface GLSLImportSettings {
  * @returns The fetched imports
  */
 function loadImportsForGLSL(settings?: GLSLImportSettings): string {
-    console.log('wireframe:')
-    console.log(glsl_solid_wireframe);
     return `
         precision highp float;
         
