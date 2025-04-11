@@ -1,13 +1,36 @@
 import {create} from "zustand/react";
 
 
+export interface GraphSettings {
+    showDarkGridLines: boolean;
+    showLightGridLines: boolean;
+    isMinimalThemeEnabled: boolean;
+}
+
+export interface DomainColoringSettings {
+    domain: {
+        x: { min: number; max: number };
+        y: { min: number; max: number };
+    };
+}
+
+export interface RiemannSphereSettings {
+    geometry: {
+        subdivisions: number;
+    };
+    domainColoring: {
+        settings: DomainColoringSettings;
+        visible: boolean;
+        opacity: number;
+        showAxes: boolean;
+    }
+}
+
 export interface State {
     equations: string[];
-    graphSettings: {
-        showDarkGridLines: boolean;
-        showLightGridLines: boolean;
-        isMinimalThemeEnabled: boolean;
-    }
+    graphSettings: GraphSettings;
+    domainColoring: DomainColoringSettings;
+    riemannSphere: RiemannSphereSettings;
 }
 
 export interface Actions {
@@ -23,6 +46,28 @@ export const useStore = create<State & Actions>((set) => ({
         showDarkGridLines: true,
         showLightGridLines: true,
         isMinimalThemeEnabled: false
+    },
+    domainColoring: {
+        domain: {
+            x: { min: -2, max: 2 },
+            y: { min: -2, max: 2 }
+        }
+    },
+    riemannSphere: {
+        geometry: {
+            subdivisions: 100
+        },
+        domainColoring: {
+            settings: {
+                domain: {
+                    x: { min: -2, max: 2 },
+                    y: { min: -2, max: 2 }
+                }
+            },
+            visible: true,
+            opacity: 0.7,
+            showAxes: true
+        }
     },
     setEquations: (equations) => set(() => ({
         equations
