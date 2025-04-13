@@ -1,7 +1,3 @@
-import {useStore} from "@/zustand/store";
-import {parseToGLSL} from "@/parser/complexify";
-
-
 /**
  * An interval is a tuple of two values defining a lower and an upper
  * bound (both values inclusive).
@@ -66,9 +62,4 @@ export function autoCalculateDomain(screen: {width: number; height: number}, pro
     }
 
     return { x: domainX, y: domainY };
-}
-
-export function useCombinedEditorInputIntoGLSL(): string {
-    const equations = useStore(store => store.equations);
-    return parseToGLSL(equations.filter(e => e).join(';'));
 }

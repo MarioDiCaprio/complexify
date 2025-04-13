@@ -3,7 +3,7 @@
 import React, {JSX, useEffect, useRef, useState} from "react";
 import {GLSL_FOR_DOMAIN_COLORING, GLSL_FOR_RIEMANN_SPHERE} from "@/shaders/shaders";
 import {Box3, Color, DoubleSide, Euler, ShaderMaterial, Vector2, Vector3} from "three";
-import {transformInterval, useCombinedEditorInputIntoGLSL} from "@/shaders/utils";
+import {transformInterval} from "@/shaders/utils";
 import TextLookingAtCamera from "./TextLookingAtCamera";
 import {Canvas} from "@react-three/fiber";
 import {OrbitControls} from "@react-three/drei";
@@ -20,7 +20,7 @@ const RIEMANN_SPHERE_VERTEX_SHADER = `
 `;
 
 function useRiemannSphereFragmentShader(): string {
-    const code = useCombinedEditorInputIntoGLSL();
+    const {glsl: code} = useStore(state => state.parsedEquations);
     const graphSettings = useStore(state => state.graphSettings);
 
     return `
@@ -54,7 +54,7 @@ const DOMCOL_VERTEX_SHADER = `
 `;
 
 function useDomcolFragmentShader(): string {
-    const code = useCombinedEditorInputIntoGLSL();
+    const {glsl: code} = useStore(state => state.parsedEquations);
 
     const graphSettings = useStore(state => state.graphSettings);
     const riemannSphereSettings = useStore(state => state.riemannSphere);

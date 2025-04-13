@@ -1,53 +1,34 @@
 import {CharStreams, CommonTokenStream} from "antlr4ts";
 import { ComplexifyLexer } from "./generated/src/parser/ComplexifyLexer";
 import { ComplexifyParser } from "./generated/src/parser/ComplexifyParser";
+import ComplexifyParseError from "@/parser/errors/ComplexifyParseError";
 import ComplexifyGLSLVisitor from "@/parser/visitors/ComplexifyGLSLVisitor";
-
-import * as MathC from "@/shaders/complexMath";
 import ComplexifyJsVisitor from "@/parser/visitors/ComplexifyJsVisitor";
 
-/**
- * This function parses the given input. It converts LaTeX math into
- * GLSL-readable code to plot the given function.
- * @param input The code as LaTeX math
- * @returns The code in GLSL
- */
-export function parseToGLSL(input: string | undefined): string {
-    if (!input) {
-        return '';
-    }
-    const charStream = CharStreams.fromString(input);
-    const lexer = new ComplexifyLexer(charStream);
-    const tokenStream = new CommonTokenStream(lexer);
-    const parser = new ComplexifyParser(tokenStream);
+import {ComplexFunction} from "@/shaders/complexMath";
 
+
+export function parse(input?: string): [string, ComplexFunction] | never {
+    if (!input) {
+        throw new ComplexifyParseError("Input is empty or undefined, so nothing can be parsed");
+    }
+    let glslOutput: string;
+    let jsOutput: ComplexFunction | undefined;
     try {
-        const parseContext = parser.parse();
+        const charStream = CharStreams.fromString(input);
+        const lexer = new ComplexifyLexer(charStream);
+        const tokenStream = new CommonTokenStream(lexer);
+        const parser = new ComplexifyParser(tokenStream);
+        const context = parser.parse();
         const glslVisitor = new ComplexifyGLSLVisitor();
-
-        return glslVisitor.visitParse(parseContext);
-    } catch (error) {
-        console.error(error);
-        return "";
-    }
-}
-
-export function parseToJs(input: string | undefined): MathC.ComplexFunction | undefined {
-    if (!input) {
-        return undefined;
-    }
-    const charStream = CharStreams.fromString(input);
-    const lexer = new ComplexifyLexer(charStream);
-    const tokenStream = new CommonTokenStream(lexer);
-    const parser = new ComplexifyParser(tokenStream);
-
-    try {
-        const parseContext = parser.parse();
         const jsVisitor = new ComplexifyJsVisitor();
-
-        return jsVisitor.visitParse(parseContext);
-    } catch (error) {
-        console.error(error);
-        return undefined;
+        glslOutput = glslVisitor.visitParse(context)
+        jsOutput = jsVisitor.visitParse(context);
+    } catch (error: any) {
+        throw new ComplexifyParseError("A syntax error occurred while parsing the input", error);
     }
+    if (!jsOutput) {
+        throw new ComplexifyParseError("No symbol marked for plot. Prefix plotted symbol with '@'");
+    }
+    return [glslOutput, jsOutput];
 }

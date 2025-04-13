@@ -7,8 +7,7 @@ import {Canvas} from '@react-three/fiber';
 import {
     autoCalculateDomain,
     Interval,
-    scaleInterval,
-    useCombinedEditorInputIntoGLSL
+    scaleInterval
 } from "@/shaders/utils";
 import {GLSL_FOR_DOMAIN_COLORING} from "@/shaders/shaders";
 import {useStore} from "@/zustand/store";
@@ -25,7 +24,7 @@ const VERTEX_SHADER = `
     }
 `;
 
-function useDomcolFragmentShader(code: string): string {
+function useDomcolFragmentShader(code?: string): string {
     const graphSettings = useStore(store => store.graphSettings);
 
     return `
@@ -63,7 +62,7 @@ function useDomcolFragmentShader(code: string): string {
  * documentation under `DomainColoringOptions`.
  */
 const DomainColoringGL: React.FC = () => {
-    const code = useCombinedEditorInputIntoGLSL();
+    const {glsl: code} = useStore(state => state.parsedEquations);
     const fragmentShader = useDomcolFragmentShader(code);
     const [requiresReload, setRequiresReload] = useState<boolean>(false);
 
