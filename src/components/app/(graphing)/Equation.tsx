@@ -2,10 +2,11 @@
 
 import React, {useEffect} from "react";
 import dynamic from "next/dynamic";
-import {useStore} from "@/zustand/store";
+import {Reorder, useDragControls} from "framer-motion";
 import {MathField} from "react-mathquill";
-import {Button} from "@heroui/react";
+import {Button, Card} from "@heroui/react";
 import { FaRegTrashAlt as TrashIcon } from "react-icons/fa";
+import { GoGrabber as ReorderIcon } from "react-icons/go";
 
 const EditableMathField = dynamic(
     () => import("react-mathquill").then(m => m.EditableMathField),
@@ -16,12 +17,12 @@ const EditableMathField = dynamic(
 interface EquationProps {
     index: number;
     latex: string;
-    onDelete(): void;
+    onChange(index: number, latex: string): void;
+    onDelete(index: number): void;
 }
 
 const Equation: React.FC<EquationProps> = (props) => {
-    const updateCachedEquation = useStore(state => state.updateEquation);
-    const deleteEquation = useStore(state => state.deleteEquation);
+    const dragControls = useDragControls();
 
     // add mathquill styles on mount
     useEffect(() => {
@@ -30,39 +31,49 @@ const Equation: React.FC<EquationProps> = (props) => {
         });
     }, []);
 
-    function dispatchCacheUpdate(mathField: MathField) {
-        updateCachedEquation(props.index, mathField.latex());
+    function onChange(mathField: MathField) {
+        props.onChange(props.index, mathField.latex());
     }
 
-    function deleteThisEquation() {
-        deleteEquation(props.index);
-        props.onDelete();
+    function onDelete() {
+        props.onDelete(props.index);
     }
 
     return (
-        <div className="w-full min-h-[55px] flex items-center justify-between border-b border-slate-300">
-            <div className="px-5">
-                {props.index}
-            </div>
-            <EditableMathField
-                latex={props.latex}
-                onChange={dispatchCacheUpdate}
-                style={{
-                    width: "100%",
-                    minHeight: "55px",
-                    paddingLeft: "15px",
-                    paddingRight: "15px",
-                    border: "none",
-                    display: "flex",
-                    alignItems: "center",
-                }}
-            />
-            <div className="px-2">
-                <Button onPress={deleteThisEquation} isIconOnly variant="light" color="danger">
-                    <TrashIcon />
-                </Button>
-            </div>
-        </div>
+        <Reorder.Item key={props.index} value={props.index} dragListener={false} dragControls={dragControls}>
+            <Card className="w-full min-h-[55px] mb-5 py-1 flex flex-row items-center justify-between">
+
+                {/* Reordering handle */}
+                <div
+                    className="px-5 text-3xl text-black/50 cursor-grab select-none"
+                    onPointerDown={e => dragControls.start(e)}>
+                    <ReorderIcon />
+                </div>
+
+                {/* MathQuill field */}
+                <EditableMathField
+                    latex={props.latex}
+                    onChange={onChange}
+                    style={{
+                        width: "100%",
+                        minHeight: "55px",
+                        paddingLeft: "15px",
+                        paddingRight: "15px",
+                        border: "none",
+                        display: "flex",
+                        alignItems: "center",
+                    }}
+                />
+
+                {/* Delete equation */}
+                <div className="px-2">
+                    <Button onPress={onDelete} isIconOnly variant="light" color="danger">
+                        <TrashIcon />
+                    </Button>
+                </div>
+
+            </Card>
+        </Reorder.Item>
     );
 }
 

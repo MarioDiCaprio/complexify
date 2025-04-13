@@ -44,9 +44,6 @@ export interface State {
 
 export interface Actions {
     setEquations(equations: string[]): void;
-    pushEquation(equation: string): void;
-    deleteEquation(index: number): void;
-    updateEquation(index: number, equation: string): void;
 }
 
 
@@ -99,27 +96,6 @@ export const useStore = create<State & Actions>((set) => ({
         }
     },
     setEquations: (equations) => set(() => {
-        return {
-            equations,
-            parsedEquations: parseEquations(equations)
-        }
-    }),
-    pushEquation: (latex) => set((state) => {
-        const equations = [...state.equations, latex];
-        return {
-            equations,
-            parsedEquations: parseEquations(equations)
-        }
-    }),
-    deleteEquation: (index: number) => set((state) => {
-        const equations = state.equations.toSpliced(index, 1);
-        return {
-            equations,
-            parsedEquations: parseEquations(equations)
-        }
-    }),
-    updateEquation: (index, latex) => set((state) => {
-        const equations =  state.equations.map((oldLatex, i) => i == index ? latex : oldLatex);
         return {
             equations,
             parsedEquations: parseEquations(equations)
