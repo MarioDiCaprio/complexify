@@ -3,7 +3,6 @@
 import React, {useEffect, useMemo, useState} from "react";
 import {Interval, transformInterval} from "@/shaders/utils";
 import {useStore} from "@/zustand/store";
-import {parseToJs} from "@/parser/complexify";
 
 
 function prettify(n: number): string {
@@ -17,15 +16,7 @@ interface MouseInfoPanelProps {
 }
 
 const MouseInfoPanel: React.FC<MouseInfoPanelProps> = ({ screen, domain }) => {
-    const equations = useStore(state => state.equations);
-    const plottedFunction = useMemo(() => {
-        const filteredEq = equations.filter(e => e);
-        if (filteredEq.length == 0) {
-            return undefined;
-        }
-        const stringEq = filteredEq.join(';');
-        return parseToJs(stringEq);
-    }, [equations])
+    const plottedFunction = useStore(state => state.parsedEquations.js);
 
     const [mouseX, setMouseX] = useState<number>(0);
     const [mouseY, setMouseY] = useState<number>(0);
