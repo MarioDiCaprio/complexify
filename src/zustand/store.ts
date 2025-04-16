@@ -44,6 +44,7 @@ export interface State {
 
 export interface Actions {
     setEquations(equations: string[]): void;
+    setSettings(graphSettings?: GraphSettings, domainColoringSettings?: DomainColoringSettings, riemannSphereSettings?: RiemannSphereSettings): void;
 }
 
 
@@ -101,4 +102,11 @@ export const useStore = create<State & Actions>((set) => ({
             parsedEquations: parseEquations(equations)
         }
     }),
+    setSettings: (graphSettings, domainColoringSettings, riemannSphereSettings) => set(() => {
+        return {
+            graphSettings: graphSettings,
+            domainColoring: domainColoringSettings,
+            riemannSphere: riemannSphereSettings,
+        }
+    })
 }));

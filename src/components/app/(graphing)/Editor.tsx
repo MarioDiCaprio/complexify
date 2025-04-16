@@ -3,13 +3,14 @@
 import React, {useEffect, useState} from "react";
 import {useStore} from "@/zustand/store";
 import Equation from "@/components/app/(graphing)/Equation";
-import {Button} from "@heroui/react";
+import {Button, useDisclosure} from "@heroui/react";
 import { motion } from "framer-motion";
 import { IoMdAdd as AddIcon } from "react-icons/io";
 import { IoMdSettings as SettingsIcon } from "react-icons/io";
 import { FaCamera as CameraIcon } from "react-icons/fa";
 import { MdKeyboardDoubleArrowLeft as CloseIcon } from "react-icons/md";
 import {Reorder} from "framer-motion";
+import EditorSettings from "@/components/app/(graphing)/EditorSettings";
 
 
 const Editor: React.FC = () => {
@@ -89,6 +90,10 @@ const Editor: React.FC = () => {
 
     //////////////////////////////////////////////////////////////////
 
+    const {isOpen: isSettingsOpen, onOpen: onSettingsOpen, onOpenChange: onSettingsOpenChange} = useDisclosure();
+
+    //////////////////////////////////////////////////////////////////
+
     return (
         <div className="">
             {/* Button to open editor */}
@@ -122,7 +127,7 @@ const Editor: React.FC = () => {
                         </Button>
 
                         {/* Settings */}
-                        <Button isIconOnly variant="light" className="text-xl">
+                        <Button onPress={onSettingsOpen} isIconOnly variant="light" className="text-xl">
                             <SettingsIcon />
                         </Button>
 
@@ -149,6 +154,8 @@ const Editor: React.FC = () => {
                     </Reorder.Group>
                 </div>
             </motion.section>
+
+            <EditorSettings isOpen={isSettingsOpen} onOpenChange={onSettingsOpenChange} />
         </div>
     );
 }
