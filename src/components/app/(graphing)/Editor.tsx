@@ -107,8 +107,7 @@ const Editor: React.FC = () => {
                 transition={{ duration: 0.3, type: 'tween' }}
                 className="
                     z-[10] fixed top-0 left-0 w-full max-w-[500px] h-full pt-12
-                    flex flex-col bg-white
-                    border border-r-zinc-300 shadow-2xl">
+                    flex flex-col bg-background shadow-2xl">
 
                 {/* Toolbar */}
                 <nav className="w-full px-3 py-2 flex items-center justify-between gap-5">
