@@ -54,6 +54,10 @@ const Equation: React.FC<EquationProps> = (props) => {
                 <EditableMathField
                     latex={props.latex}
                     onChange={onChange}
+                    config={{
+                        autoCommands: 'pi sqrt Re Im',
+                        autoOperatorNames: 'sin cos tan sinh cosh tanh sec cot csc cis log ln'
+                    }}
                     style={{
                         width: "100%",
                         minHeight: "55px",
