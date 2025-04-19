@@ -77,7 +77,7 @@ atom returns [value: string | undefined]:
 
 
 NUMBER: ('0'..'9')+ ('.' ('0'..'9')?)?;
-CHAR: [a-zA-Z];
+CHAR: [a-df-hj-zA-DF-HJ-Z];
 
 ESCAPE: '\\';
 

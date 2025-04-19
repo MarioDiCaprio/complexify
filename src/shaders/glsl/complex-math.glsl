@@ -9,9 +9,9 @@
 
 float E=2.71828182845;
 
-vec2 e_VAR = vec2(2.71828182845, 0.0);
-vec2 pi_VAR = vec2(3.14159265359, 0.0);
-vec2 i_VAR = vec2(0.0, 1.0);
+vec2 e_CONST = vec2(2.71828182845, 0.0);
+vec2 pi_CONST = vec2(3.14159265359, 0.0);
+vec2 i_CONST = vec2(0.0, 1.0);
 
 float fractalMaxIter = 1000.0;
 
