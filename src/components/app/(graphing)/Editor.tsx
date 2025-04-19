@@ -11,6 +11,7 @@ import { FaCamera as CameraIcon } from "react-icons/fa";
 import { MdKeyboardDoubleArrowLeft as CloseIcon } from "react-icons/md";
 import {Reorder} from "framer-motion";
 import EditorSettings from "@/components/app/(graphing)/EditorSettings";
+import CanvasSnapshot from "@/components/app/(graphing)/CanvasSnapshot";
 
 
 const Editor: React.FC = () => {
@@ -90,7 +91,11 @@ const Editor: React.FC = () => {
 
     //////////////////////////////////////////////////////////////////
 
+    // editor settings modal
     const {isOpen: isSettingsOpen, onOpen: onSettingsOpen, onOpenChange: onSettingsOpenChange} = useDisclosure();
+
+    // canvas snapshot modal
+    const {isOpen: isSnapshotOpen, onOpen: onSnapshotOpen, onOpenChange: onSnapshotOpenChange} = useDisclosure();
 
     //////////////////////////////////////////////////////////////////
 
@@ -121,7 +126,7 @@ const Editor: React.FC = () => {
                     <div className="h-full flex items-center gap-3">
 
                         {/* Snapshot */}
-                        <Button isIconOnly variant="light" className="text-xl">
+                        <Button onPress={onSnapshotOpen} isIconOnly variant="light" className="text-xl">
                             <CameraIcon />
                         </Button>
 
@@ -155,6 +160,8 @@ const Editor: React.FC = () => {
             </motion.section>
 
             <EditorSettings isOpen={isSettingsOpen} onOpenChange={onSettingsOpenChange} />
+
+            <CanvasSnapshot isOpen={isSnapshotOpen} onOpenChange={onSnapshotOpenChange} />
         </div>
     );
 }
