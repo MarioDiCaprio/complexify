@@ -10,7 +10,7 @@ const Navbar: React.FC = () => {
             <NavbarBrand>
                 <span>Complexify</span>
             </NavbarBrand>
-            <NavbarContent justify="center" className="flex items-center gap-12 bg-black">
+            <NavbarContent justify="center" className="flex items-center gap-12">
                 <NavbarItem>
                     <Link href="/">
                         Home
