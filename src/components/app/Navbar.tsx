@@ -1,43 +1,33 @@
 "use client"
 
 import React from "react";
-import Link from "next/link";
+import {Link, Navbar as HeroUiNavbar, NavbarBrand, NavbarContent, NavbarItem} from "@heroui/react";
 
 
 const Navbar: React.FC = () => {
     return (
-        <nav className="
-            z-[50] fixed top-0 left-0 w-full h-12 p-5
-            bg-white
-            flex items-center justify-between">
-            <div>
-                <span>
-                    Complexify
-                </span>
-            </div>
-            <div>
-                <ul className="list-none flex gap-12">
-                    <li>
-                        <Link href="/">
-                            Home
-                        </Link>
-                    </li>
-                    <li>
-                        <Link href="/domain-coloring">
-                            Domain Coloring
-                        </Link>
-                    </li>
-                    <li>
-                        <Link href="/riemann-sphere">
-                            Riemann Sphere
-                        </Link>
-                    </li>
-                </ul>
-            </div>
-            <div>
-
-            </div>
-        </nav>
+        <HeroUiNavbar height="3rem" className="w-full bg-background flex items-center justify-between">
+            <NavbarBrand>
+                <span>Complexify</span>
+            </NavbarBrand>
+            <NavbarContent justify="center" className="flex items-center gap-12 bg-black">
+                <NavbarItem>
+                    <Link href="/">
+                        Home
+                    </Link>
+                </NavbarItem>
+                <NavbarItem>
+                    <Link href="/domain-coloring">
+                        Domain Coloring
+                    </Link>
+                </NavbarItem>
+                <NavbarItem>
+                    <Link href="/riemann-sphere">
+                        Riemann Sphere
+                    </Link>
+                </NavbarItem>
+            </NavbarContent>
+        </HeroUiNavbar>
     );
 }
 
