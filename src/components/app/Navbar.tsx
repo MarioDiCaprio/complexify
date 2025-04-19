@@ -6,7 +6,7 @@ import {Link, Navbar as HeroUiNavbar, NavbarBrand, NavbarContent, NavbarItem} fr
 
 const Navbar: React.FC = () => {
     return (
-        <HeroUiNavbar height="3rem" className="w-full bg-background flex items-center justify-between">
+        <HeroUiNavbar height="3rem" className="fixed w-full bg-background flex items-center justify-between">
             <NavbarBrand>
                 <span>Complexify</span>
             </NavbarBrand>
