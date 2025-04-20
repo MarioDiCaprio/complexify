@@ -1,22 +1,19 @@
 import type { NextConfig } from "next";
-import {load} from "signal-exit";
 
 const nextConfig: NextConfig = {
-    webpack: (config) => ({
-        externals: Object.assign({}, config.externals, {
-            fs: 'fs',
-        }),
-        module: Object.assign({}, config.module, {
-            // loader for GLSL files
-            rules: config.module.rules.concat([
-                {
-                    test: /\.(glsl|vs|fs|vert|frag)$/,
-                    exclude: /node_modules/,
-                    use: ['raw-loader', 'glslify-loader']
-                }
-            ]),
-        }),
-    }),
+    webpack: (config) => {
+        // exclude fs from build
+        config.externals['fs'] = 'fs';
+
+        // add GLSLify loader rules
+        config.module.rules.push({
+            test: /\.(glsl|vs|fs|vert|frag)$/,
+            exclude: /node_modules/,
+            use: ['raw-loader', 'glslify-loader']
+        });
+
+        return config;
+    },
     experimental: {
         turbo: {
             rules: {
