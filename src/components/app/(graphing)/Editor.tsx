@@ -111,7 +111,7 @@ const Editor: React.FC = () => {
                 animate={{ x: open? '0%' : '-100%' }}
                 transition={{ duration: 0.3, type: 'tween' }}
                 className="
-                    z-[10] fixed top-0 left-0 w-full max-w-[500px] h-full pt-12
+                    z-[10] fixed top-0 left-0 w-full max-w-[500px] h-full pt-[4rem]
                     flex flex-col bg-background shadow-2xl">
 
                 {/* Toolbar */}

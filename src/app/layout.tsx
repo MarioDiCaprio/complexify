@@ -27,7 +27,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
             <body className={`w-screen min-h-screen ${geistSans.variable} ${geistMono.variable} antialiased bg-white text-black`}>
                 <Providers>
                     <Navbar />
-                    <main className="relative pt-12 min-h-screen">
+                    <main className="relative pt-[4rem] min-h-screen">
                         {children}
                     </main>
                 </Providers>
