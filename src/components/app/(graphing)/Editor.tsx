@@ -4,11 +4,11 @@ import React, {useEffect, useState} from "react";
 import {useStore} from "@/zustand/store";
 import Equation from "@/components/app/(graphing)/Equation";
 import {Button, useDisclosure} from "@heroui/react";
-import { motion } from "framer-motion";
 import { IoMdAdd as AddIcon } from "react-icons/io";
 import { IoMdSettings as SettingsIcon } from "react-icons/io";
 import { FaCamera as CameraIcon } from "react-icons/fa";
-import { MdKeyboardDoubleArrowLeft as CloseIcon } from "react-icons/md";
+import { MdKeyboardDoubleArrowLeft as ArrowLeftIcon } from "react-icons/md";
+import { MdKeyboardDoubleArrowDown as ArrowDownIcon } from "react-icons/md";
 import {Reorder} from "framer-motion";
 import EditorSettings from "@/components/app/(graphing)/EditorSettings";
 import CanvasSnapshot from "@/components/app/(graphing)/CanvasSnapshot";
@@ -100,19 +100,18 @@ const Editor: React.FC = () => {
     //////////////////////////////////////////////////////////////////
 
     return (
-        <div className="">
+        <>
             {/* Button to open editor */}
-            <Button onPress={openEditor} color="primary" className="z-[5] m-5 shadow-xl">
+            <Button onPress={openEditor} color="primary" className="z-[5] absolute top-[4rem] left-0 m-5 shadow-xl">
                 Open Editor
             </Button>
 
             {/* Editor */}
-            <motion.section
-                animate={{ x: open? '0%' : '-100%' }}
-                transition={{ duration: 0.3, type: 'tween' }}
-                className="
-                    z-[10] fixed top-0 left-0 w-full max-w-[500px] h-full pt-[4rem]
-                    flex flex-col bg-background shadow-2xl">
+            <section
+                className={`
+                    z-[10] fixed top-2/3 md:top-0 left-0 w-full md:max-w-[500px] h-full md:pt-[4rem]
+                    flex flex-col bg-background shadow-2xl duration-300
+                    ${open? "translate-y-0 md:translate-x-0" : "translate-y-1/3  md:-translate-x-full"}`}>
 
                 {/* Toolbar */}
                 <nav className="w-full px-3 py-2 flex items-center justify-between gap-5">
@@ -137,14 +136,15 @@ const Editor: React.FC = () => {
 
                         {/* Close editor */}
                         <Button onPress={closeEditor} isIconOnly variant="light" color="primary" className="text-xl">
-                            <CloseIcon />
+                            <ArrowDownIcon className="md:hidden"/>
+                            <ArrowLeftIcon className="hidden md:block"/>
                         </Button>
 
                     </div>
                 </nav>
 
                 {/* Equations */}
-                <div className="w-full grow p-5 overflow-y-auto select-none">
+                <div className="w-full max-h-full grow p-5 overflow-scroll select-none">
                     <Reorder.Group axis="y" values={equationsOrder} onReorder={reorderEquations}>
                         {equationsOrder.map((order) => (
                             <Equation
@@ -157,12 +157,12 @@ const Editor: React.FC = () => {
                         ))}
                     </Reorder.Group>
                 </div>
-            </motion.section>
+            </section>
 
             <EditorSettings isOpen={isSettingsOpen} onOpenChange={onSettingsOpenChange} />
 
             <CanvasSnapshot isOpen={isSnapshotOpen} onOpenChange={onSnapshotOpenChange} />
-        </div>
+        </>
     );
 }
 

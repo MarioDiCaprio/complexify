@@ -40,7 +40,7 @@ const MouseInfoPanel: React.FC<MouseInfoPanelProps> = ({ screen, domain }) => {
 
     return (
         <div className="fixed right-0 bottom-0 m-5 p-2 bg-white rounded shadow-2xl">
-            <table className="min-w-[300px] table-fixed text-left">
+            <table className="w-full md:w-fit md:min-w-[300px] table-fixed text-left">
 
                 <thead>
                     <tr>
