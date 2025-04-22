@@ -153,7 +153,9 @@ const DomainColoringGL: React.FC = () => {
         /** Drags the plane around and 'moves' the domain of the plot */
         onDrag: dragProps => {
             if (shaderRef.current?.uniforms) {
-                const factor = 1.5;
+                // ratio of (dy/dx of translation on the domain) and (dy/dx of the user's drag gesture)
+                // ratio of 1.0 is probably ideal usability-wise
+                const factor = 1.0;
                 const [x, y] = dragProps.delta;
                 const domX = shaderRef.current.uniforms['domainX'].value;
                 const domY = shaderRef.current.uniforms['domainY'].value;
