@@ -190,10 +190,14 @@ const DomainColoringGL: React.FC = () => {
         },
         onPinch: pinchProps => {
             if (shaderRef.current?.uniforms) {
+                const threshold = 0.1;
+                const scaleFactor = 0.07;
                 const domX = shaderRef.current.uniforms['domainX'].value;
                 const domY = shaderRef.current.uniforms['domainY'].value;
                 const [pinchDX, pinchDY] = pinchProps.delta;
-                const fac = (pinchDX + pinchDY > 0)? 1 + 0.03 : 1 - 0.03;
+                const fac =
+                    (pinchDX + pinchDY > threshold)? 1 + scaleFactor :
+                    (pinchDX + pinchDY < -threshold)? 1 - scaleFactor : 1;
                 const scaledX = scaleInterval(fac, {min: domX.x, max: domX.y});
                 const scaledY = scaleInterval(fac, {min: domY.x, max: domY.y});
                 setUniformDomain(scaledX, scaledY);
