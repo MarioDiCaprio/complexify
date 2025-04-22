@@ -102,16 +102,17 @@ const Editor: React.FC = () => {
     return (
         <>
             {/* Button to open editor */}
-            <Button onPress={openEditor} color="primary" className="z-[5] absolute top-[4rem] left-0 m-5 shadow-xl">
+            <Button onPress={openEditor} color="primary" className="z-[5] fixed top-[4rem] left-0 m-5 shadow-xl">
                 Open Editor
             </Button>
 
             {/* Editor */}
             <section
                 className={`
-                    z-[10] fixed top-2/3 md:top-0 left-0 w-full md:max-w-[500px] h-full md:pt-[4rem]
+                    z-[10] fixed top-2/3 md:top-0 left-0 w-full md:max-w-[500px] h-1/3 md:h-full md:pt-[4rem]
                     flex flex-col bg-background shadow-2xl duration-300
-                    ${open? "translate-y-0 md:translate-x-0" : "translate-y-1/3  md:-translate-x-full"}`}>
+                    ${open? "translate-y-0 md:translate-x-0" : "translate-y-full md:translate-y-0 md:-translate-x-full"}
+                `}>
 
                 {/* Toolbar */}
                 <nav className="w-full px-3 py-2 flex items-center justify-between gap-5">
