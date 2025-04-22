@@ -102,7 +102,10 @@ const Editor: React.FC = () => {
     return (
         <>
             {/* Button to open editor */}
-            <Button onPress={openEditor} color="primary" className="z-[5] fixed top-[4rem] left-0 m-5 shadow-xl">
+            <Button
+                onPress={openEditor}
+                color="primary"
+                className={`z-[5] fixed top-[4rem] left-0 m-5 shadow-xl ${open? 'hidden' : 'block'}`}>
                 Open Editor
             </Button>
 
