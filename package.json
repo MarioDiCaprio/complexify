@@ -1,7 +1,8 @@
 {
-  "name": "complexify-v2",
+  "name": "complexify",
   "version": "0.1.0",
   "private": true,
+  "author": "Mario Di Caprio",
   "scripts": {
     "dev": "next dev --turbopack",
     "build": "next build",
