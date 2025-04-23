@@ -23,7 +23,7 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
     return (
         <html lang="en">
-            <body className={`w-screen min-h-screen ${geistSans.variable} ${geistMono.variable} antialiased`}>
+            <body className={`w-screen ${geistSans.variable} ${geistMono.variable} antialiased`}>
                 <Providers>
                     {children}
                 </Providers>

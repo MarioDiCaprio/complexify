@@ -6,7 +6,7 @@ const Layout: React.FC<{ children?: ReactNode }> = ({ children }) => {
     return (
         <>
             <Navbar />
-            <main className="w-full">
+            <main className="w-full mt-[4rem] py-5 px-2">
                 {children}
             </main>
             <Footer />
