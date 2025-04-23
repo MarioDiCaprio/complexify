@@ -1,7 +1,6 @@
 import "./globals.css";
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
-import Navbar from "@/components/app/Navbar";
 import Providers from "@/components/Providers";
 
 
@@ -24,12 +23,9 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
     return (
         <html lang="en">
-            <body className={`w-screen min-h-screen ${geistSans.variable} ${geistMono.variable} antialiased bg-white text-black`}>
+            <body className={`w-screen min-h-screen ${geistSans.variable} ${geistMono.variable} antialiased`}>
                 <Providers>
-                    <Navbar />
-                    <main className="pt-[4rem]">
-                        {children}
-                    </main>
+                    {children}
                 </Providers>
             </body>
         </html>
