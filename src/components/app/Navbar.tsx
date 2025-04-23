@@ -2,6 +2,8 @@
 
 import React, {useState} from "react";
 import {
+    Button,
+    Dropdown, DropdownItem, DropdownMenu, DropdownTrigger,
     Link,
     Navbar as HeroUiNavbar,
     NavbarBrand,
@@ -11,6 +13,9 @@ import {
     NavbarMenuToggle
 } from "@heroui/react";
 import Image from "next/image";
+import { IoChevronDownOutline as ChevronDownIcon } from "react-icons/io5";
+import { FaRegSquare as SquareIcon } from "react-icons/fa6";
+import { TbSphere as SphereIcon } from "react-icons/tb";
 
 import complexifyBrandImg from "../../../public/img/logo/complexify-brand-black.webp";
 
@@ -28,39 +33,57 @@ const Navbar: React.FC = () => {
             isMenuOpen={isMenuOpen}
             onMenuOpenChange={setIsMenuOpen}
             isBordered
-            className="fixed w-full bg-background flex items-center justify-between">
+            isBlurred={false}
+            className="fixed">
 
             <NavbarBrand className="h-full">
                 <Link href="/" className="h-full">
                     <Image
                         src={complexifyBrandImg}
                         alt="Complexify"
-                        className="h-full w-auto p-2 select-none"
+                        className="h-full w-auto p-3 select-none"
                     />
                 </Link>
             </NavbarBrand>
 
             <NavbarContent justify="center" className="hidden sm:flex items-center gap-12">
-                <NavbarItem>
-                    <Link href="/domain-coloring">
-                        Domain Coloring
-                    </Link>
-                </NavbarItem>
-                <NavbarItem>
-                    <Link href="/riemann-sphere">
-                        Riemann Sphere
-                    </Link>
-                </NavbarItem>
+                <Dropdown>
+                    <NavbarItem>
+                        <DropdownTrigger>
+                            <Button
+                                disableRipple
+                                radius="sm"
+                                endContent={<ChevronDownIcon />}
+                                className="p-0 text-base bg-transparent data-[hover=true]:bg-transparent">
+                                Graphing Tools
+                            </Button>
+                        </DropdownTrigger>
+                    </NavbarItem>
+                    <DropdownMenu>
+                        <DropdownItem
+                            key="domain-coloring"
+                            href="/domain-coloring"
+                            description="Standard visualization technique">
+                            Domain Coloring
+                        </DropdownItem>
+                        <DropdownItem
+                            key="riemann-sphere"
+                            href="/riemann-sphere"
+                            description="Stereographic projection of domain coloring">
+                            Riemann Sphere
+                        </DropdownItem>
+                    </DropdownMenu>
+                </Dropdown>
             </NavbarContent>
 
             <NavbarContent justify="end" className="sm:hidden">
                 <NavbarMenuToggle />
             </NavbarContent>
 
-            <NavbarMenu className="pt-5 bg-background">
+            <NavbarMenu className="pt-5">
                 <NavbarMenuItem>
                     <h1 className="font-bold">
-                        Graphing
+                        Graphing Tools
                     </h1>
                     <ul className="list-none">
                         <li>
@@ -71,23 +94,6 @@ const Navbar: React.FC = () => {
                         <li>
                             <Link href="/riemann-sphere" onPress={closeMenu}>
                                 Riemann Sphere
-                            </Link>
-                        </li>
-                    </ul>
-                </NavbarMenuItem>
-                <NavbarMenuItem>
-                    <h1 className="font-bold">
-                        About
-                    </h1>
-                    <ul className="list-none">
-                        <li>
-                            <Link href="/impressum" onPress={closeMenu}>
-                                Impressum
-                            </Link>
-                        </li>
-                        <li>
-                            <Link href="https://mariodicaprio.com" target="_blank">
-                                Author
                             </Link>
                         </li>
                     </ul>
