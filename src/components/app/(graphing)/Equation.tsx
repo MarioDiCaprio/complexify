@@ -45,7 +45,7 @@ const Equation: React.FC<EquationProps> = (props) => {
 
                 {/* Reordering handle */}
                 <div
-                    className="px-5 text-3xl text-black/50 cursor-grab select-none"
+                    className="px-5 text-3xl text-black/50 cursor-grab select-none touch-none"
                     onPointerDown={e => dragControls.start(e)}>
                     <ReorderIcon />
                 </div>
