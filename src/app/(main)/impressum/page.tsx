@@ -50,7 +50,7 @@ const Page: React.FC = () => (
                             Email
                         </TableCell>
                         <TableCell>
-                            dicaprio.mario@protonmail.com
+                            contact@mariodicaprio.com
                         </TableCell>
                     </TableRow>
                 </TableBody>
