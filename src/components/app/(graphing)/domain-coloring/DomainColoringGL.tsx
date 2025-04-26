@@ -1,6 +1,6 @@
 "use client"
 
-import React, {JSX, useCallback, useEffect, useMemo, useRef, useState} from 'react';
+import React, {JSX, useEffect, useMemo, useRef, useState} from 'react';
 import { useGesture } from '@use-gesture/react';
 import * as THREE from 'three';
 import {Canvas} from '@react-three/fiber';

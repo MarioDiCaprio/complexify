@@ -59,8 +59,8 @@ export function autoCalculateDomain(screen: {width: number; height: number}, pro
     const { min: minY, max: maxY } = promptY;
     let ratio = width / height;
 
-    let domainX = promptX;
-    let domainY = promptY;
+    let domainX: Interval;
+    let domainY: Interval;
 
     if (ratio > 1) {
         domainY = promptY;
