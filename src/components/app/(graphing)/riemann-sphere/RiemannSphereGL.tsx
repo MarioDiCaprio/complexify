@@ -1,6 +1,6 @@
 "use client"
 
-import React, {JSX, useEffect, useRef, useState} from "react";
+import React, {JSX, useEffect, useRef} from "react";
 import {GLSL_FOR_DOMAIN_COLORING, GLSL_FOR_RIEMANN_SPHERE} from "@/shaders/shaders";
 import {Box3, Color, DoubleSide, Euler, ShaderMaterial, Vector2, Vector3} from "three";
 import {transformInterval} from "@/shaders/utils";
@@ -119,15 +119,6 @@ const RiemannSphereGL: React.FC = () => {
     const domcolFragmentShader = useDomcolFragmentShader();
     const sphereFragmentShader = useRiemannSphereFragmentShader();
 
-    const [requiresReload, setRequiresReload] = useState<boolean>(false);
-
-    useEffect(() => {
-        setRequiresReload(true);
-        setTimeout(() => {
-            setRequiresReload(false);
-        }, 200);
-    }, [domcolFragmentShader, sphereFragmentShader]);
-
     ////////////////////////////////////////////////////////////////////////////////////////
 
     const domcolShaderRef = useRef<ShaderMaterial>(null);
@@ -168,16 +159,6 @@ const RiemannSphereGL: React.FC = () => {
                 { num + ' ' }i
                 <meshBasicMaterial color="black" />
             </TextLookingAtCamera>
-        );
-    }
-
-    // if a reload is needed (which it is, every time a re-render is needed)
-    // briefly return nothing. Unmounting the canvas and then remounting it
-    // forces it to reload.
-    // TODO Find a better method, which is unknown as for now!
-    if (requiresReload) {
-        return (
-            <></>
         );
     }
 

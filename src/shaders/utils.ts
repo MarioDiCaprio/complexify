@@ -1,3 +1,5 @@
+import {Vector2} from "three";
+
 /**
  * An interval is a tuple of two values defining a lower and an upper
  * bound (both values inclusive).
@@ -6,6 +8,14 @@ export type Interval = { min: number, max: number };
 
 // Note: While `Interval` and `Point2D` are the same, they mean
 // different things semantically!
+
+export function intervalToVector(interval: Interval): Vector2 {
+    return new Vector2(interval.min, interval.max);
+}
+
+export function vectorToInterval(vector: Vector2): Interval {
+    return { min: vector.x, max: vector.y };
+}
 
 //////////////////////////////////////////////////////////////////////////////////
 
@@ -49,8 +59,8 @@ export function autoCalculateDomain(screen: {width: number; height: number}, pro
     const { min: minY, max: maxY } = promptY;
     let ratio = width / height;
 
-    let domainX = promptX;
-    let domainY = promptY;
+    let domainX: Interval;
+    let domainY: Interval;
 
     if (ratio > 1) {
         domainY = promptY;
