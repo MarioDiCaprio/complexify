@@ -184,15 +184,6 @@ const DomainColoringGL: React.FC = () => {
         }
     }, { target: containerRef });
 
-    // if a reload is needed (which it is, every time a re-render is needed)
-    // briefly return nothing. Unmounting the canvas and then remounting it
-    // forces it to reload.
-    // TODO Find a better method, which is unknown as for now!
-    if (requiresReload) {
-        return (
-            <></>
-        );
-    }
 
     return (
         <>

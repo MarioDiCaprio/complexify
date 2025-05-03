@@ -171,16 +171,6 @@ const RiemannSphereGL: React.FC = () => {
         );
     }
 
-    // if a reload is needed (which it is, every time a re-render is needed)
-    // briefly return nothing. Unmounting the canvas and then remounting it
-    // forces it to reload.
-    // TODO Find a better method, which is unknown as for now!
-    if (requiresReload) {
-        return (
-            <></>
-        );
-    }
-
     return (
         <>
             <div className="fixed top-0 left-0 w-screen h-screen bg-zinc-100 touch-none">
