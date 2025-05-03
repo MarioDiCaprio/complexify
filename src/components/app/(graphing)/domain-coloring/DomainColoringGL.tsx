@@ -37,15 +37,14 @@ function useDomcolFragmentShader(code?: string): string {
         
         uniform float screenWidth;
         uniform float screenHeight;
-        uniform float pixelRatio;
         uniform vec2 domainX, domainY;
 
         ${ code }
 
         void main() {
             vec2 z = vec2(
-                mix(domainX.x, domainX.y, gl_FragCoord.x / (screenWidth * pixelRatio)),
-                mix(domainY.x, domainY.y, gl_FragCoord.y / (screenHeight * pixelRatio))
+                mix(domainX.x, domainX.y, gl_FragCoord.x / (screenWidth * 2.0)),
+                mix(domainY.x, domainY.y, gl_FragCoord.y / (screenHeight * 2.0))
             );
 
             gl_FragColor = domcol(plottedFunction(z));
@@ -95,7 +94,6 @@ const DomainColoringGL: React.FC = () => {
     type DomainColoringUniforms = {
         screenWidth: IUniform<number>;
         screenHeight: IUniform<number>;
-        pixelRatio: IUniform<number>;
         domainX: IUniform<THREE.Vector2>;
         domainY: IUniform<THREE.Vector2>;
     }
@@ -106,7 +104,6 @@ const DomainColoringGL: React.FC = () => {
     const uniforms = useMemo<DomainColoringUniforms>(() => ({
         screenWidth:  { value: viewport.width  },
         screenHeight: { value: viewport.height },
-        pixelRatio: { value: viewport.pixelRatio },
         domainX: { value: intervalToVector(domainX) },
         domainY: { value: intervalToVector(domainY) },
     }), [viewport, domainX, domainY]);
@@ -133,6 +130,7 @@ const DomainColoringGL: React.FC = () => {
         const {x: domX, y: domY} = autoCalculateDomain({width: viewport.width, height: viewport.height}, DEFAULT_INTERVAL, DEFAULT_INTERVAL);
         setDomainX(domX);
         setDomainY(domY);
+        console.log(viewport)
     }, [requiresReload]);
 
     ////////////////////////////////////////////////////////////////////////////////////////
