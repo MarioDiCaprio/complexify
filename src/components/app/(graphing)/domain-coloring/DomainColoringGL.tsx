@@ -6,12 +6,13 @@ import * as THREE from 'three';
 import {Canvas} from '@react-three/fiber';
 import {
     autoCalculateDomain,
-    Interval,
+    Interval, intervalToVector,
     scaleInterval
 } from "@/shaders/utils";
 import {GLSL_FOR_DOMAIN_COLORING} from "@/shaders/shaders";
 import {useStore} from "@/zustand/store";
 import MouseInfoPanel from "@/components/app/(graphing)/domain-coloring/MouseInfoPanel";
+import {IUniform} from "three";
 
 
 ////////////////////////////////////////////////////////////////////////////////////////
@@ -36,15 +37,14 @@ function useDomcolFragmentShader(code?: string): string {
         
         uniform float screenWidth;
         uniform float screenHeight;
-        uniform float pixelRatio;
         uniform vec2 domainX, domainY;
 
         ${ code }
 
         void main() {
             vec2 z = vec2(
-                mix(domainX.x, domainX.y, gl_FragCoord.x / (screenWidth * pixelRatio)),
-                mix(domainY.x, domainY.y, gl_FragCoord.y / (screenHeight * pixelRatio))
+                mix(domainX.x, domainX.y, gl_FragCoord.x / (screenWidth * 2.0)),
+                mix(domainY.x, domainY.y, gl_FragCoord.y / (screenHeight * 2.0))
             );
 
             gl_FragColor = domcol(plottedFunction(z));
@@ -77,8 +77,8 @@ const DomainColoringGL: React.FC = () => {
     ////////////////////////////////////////////////////////////////////////////////////////
 
     // Domain to display, both on the x- and y-axis.
-    const [{min: minX, max: maxX}, setDomainX] = useState<Interval>(DEFAULT_INTERVAL);
-    const [{min: minY, max: maxY}, setDomainY] = useState<Interval>(DEFAULT_INTERVAL);
+    const [domainX, setDomainX] = useState<Interval>(DEFAULT_INTERVAL);
+    const [domainY, setDomainY] = useState<Interval>(DEFAULT_INTERVAL);
 
     // screen size
     type Viewport = { width: number, height: number, pixelRatio: number };
@@ -91,35 +91,22 @@ const DomainColoringGL: React.FC = () => {
 
     ////////////////////////////////////////////////////////////////////////////////////////
 
+    type DomainColoringUniforms = {
+        screenWidth: IUniform<number>;
+        screenHeight: IUniform<number>;
+        domainX: IUniform<THREE.Vector2>;
+        domainY: IUniform<THREE.Vector2>;
+    }
+
     // Initial uniforms for the shader material.
     // Ignored after first render for interactivity purposes!
     // To access them later on, access them directly from the shader material.
-    const uniforms = useMemo<THREE.ShaderMaterial['uniforms']>(() => ({
+    const uniforms = useMemo<DomainColoringUniforms>(() => ({
         screenWidth:  { value: viewport.width  },
         screenHeight: { value: viewport.height },
-        pixelRatio: { value: viewport.pixelRatio },
-        domainX: { value: new THREE.Vector2(minX, maxX) },
-        domainY: { value: new THREE.Vector2(minY, maxY) }
-    }), [viewport, minX, maxX, minY, maxY]);
-
-    /** Sets the shader material's uniforms */
-    function setUniformDomain(domainX: Interval, domainY: Interval) {
-        if (shaderRef.current?.uniforms) {
-            const domX: THREE.Vector2 = shaderRef.current.uniforms['domainX'].value;
-            const domY: THREE.Vector2  = shaderRef.current.uniforms['domainY'].value;
-            domX.x = domainX.min;
-            domX.y = domainX.max;
-            domY.x = domainY.min;
-            domY.y = domainY.max;
-        }
-    }
-
-    ////////////////////////////////////////////////////////////////////////////////////////
-
-    const [uniformDomains, setUniformDomains] = useState<{ x: Interval, y: Interval }>({
-        x: {min: minX, max: maxX},
-        y: {min: minY, max: maxY},
-    });
+        domainX: { value: intervalToVector(domainX) },
+        domainY: { value: intervalToVector(domainY) },
+    }), [viewport, domainX, domainY]);
 
     ////////////////////////////////////////////////////////////////////////////////////////
 
@@ -128,22 +115,21 @@ const DomainColoringGL: React.FC = () => {
      * On the server (=SSR), returns 0x0 dimensions.
      */
     function updateViewport() {
-        let newViewport: Viewport = { width: 0, height: 0, pixelRatio: 1 };
-        if (typeof window !== 'undefined')
-            newViewport = {
+        if (typeof window !== 'undefined') {
+            setViewport({
                 width: window.innerWidth,
                 height: window.innerHeight,
                 pixelRatio: window.devicePixelRatio
-            };
-        setViewport(newViewport);
+            });
+        }
     }
 
     // update screen size + domain on every reload
     useEffect(() => {
         updateViewport();
-        const {x: domainX, y: domainY} = autoCalculateDomain({width: viewport.width, height: viewport.height}, DEFAULT_INTERVAL, DEFAULT_INTERVAL);
-        setDomainX(domainX);
-        setDomainY(domainY);
+        const {x: domX, y: domY} = autoCalculateDomain({width: viewport.width, height: viewport.height}, DEFAULT_INTERVAL, DEFAULT_INTERVAL);
+        setDomainX(domX);
+        setDomainY(domY);
     }, [requiresReload]);
 
     ////////////////////////////////////////////////////////////////////////////////////////
@@ -157,67 +143,43 @@ const DomainColoringGL: React.FC = () => {
                 // ratio of 1.0 is probably ideal usability-wise
                 const factor = 1.0;
                 const [x, y] = dragProps.delta;
-                const domX = shaderRef.current.uniforms['domainX'].value;
-                const domY = shaderRef.current.uniforms['domainY'].value;
-                const offsetX = x / viewport.width * (domX.y - domX.x) * factor;
-                const offsetY = y / viewport.height * (domY.y - domY.x) * factor;
-                domX.x -= offsetX;
-                // noinspection JSSuspiciousNameCombination
-                domX.y -= offsetX;
-                // noinspection JSSuspiciousNameCombination
-                domY.x += offsetY;
-                domY.y += offsetY;
-                setUniformDomains({
-                    x: { min: domX.x, max: domX.y },
-                    y: { min: domY.x, max: domY.y },
-                });
+                const domX = {...domainX};
+                const domY = {...domainY};
+                const offsetX = x / viewport.width * (domX.min - domX.max) * factor;
+                const offsetY = y / viewport.height * (domY.min - domY.max) * factor;
+                domX.min += offsetX;
+                domX.max += offsetX;
+                domY.min -= offsetY;
+                domY.max -= offsetY;
+                setDomainX(domX);
+                setDomainY(domY);
             }
         },
         /** Zooms the plot */
         onWheel: wheelProps => {
             if (shaderRef.current?.uniforms) {
-                const domX = shaderRef.current.uniforms['domainX'].value;
-                const domY = shaderRef.current.uniforms['domainY'].value;
                 const fac = (wheelProps.event.deltaY > 0)? 1 + 0.04 : 1 - 0.04;
-                const scaledX = scaleInterval(fac, {min: domX.x, max: domX.y});
-                const scaledY = scaleInterval(fac, {min: domY.x, max: domY.y});
-                setUniformDomain(scaledX, scaledY);
-                setUniformDomains({
-                    x: { min: domX.x, max: domX.y },
-                    y: { min: domY.x, max: domY.y },
-                });
+                const scaledX = scaleInterval(fac, domainX);
+                const scaledY = scaleInterval(fac, domainY);
+                setDomainX(scaledX);
+                setDomainY(scaledY);
             }
         },
         onPinch: pinchProps => {
             if (shaderRef.current?.uniforms) {
-                const threshold = 0.1;
-                const scaleFactor = 0.07;
-                const domX = shaderRef.current.uniforms['domainX'].value;
-                const domY = shaderRef.current.uniforms['domainY'].value;
-                const [pinchDX, pinchDY] = pinchProps.delta;
+                const scaleFactor = 0.035;
+                const delta = pinchProps.delta[0];
                 const fac =
-                    (pinchDX + pinchDY > threshold)? 1 + scaleFactor :
-                    (pinchDX + pinchDY < -threshold)? 1 - scaleFactor : 1;
-                const scaledX = scaleInterval(fac, {min: domX.x, max: domX.y});
-                const scaledY = scaleInterval(fac, {min: domY.x, max: domY.y});
-                setUniformDomain(scaledX, scaledY);
-                setUniformDomains({
-                    x: { min: domX.x, max: domX.y },
-                    y: { min: domY.x, max: domY.y },
-                });
+                    (delta > 0)? 1 - scaleFactor :
+                    (delta < 0)? 1 + scaleFactor : 1;
+                const scaledX = scaleInterval(fac, domainX);
+                const scaledY = scaleInterval(fac, domainY);
+                setDomainX(scaledX);
+                setDomainY(scaledY);
             }
         }
     }, { target: containerRef });
 
-    // if a reload is needed (which it is, every time a re-render is needed)
-    // briefly return nothing. Unmounting the canvas and then remounting it
-    // forces it to reload.
-    // TODO Find a better method, which is unknown as for now!
-    if (requiresReload) {
-        return (
-            <></>
-        );
-    }
 
     return (
         <>
@@ -230,6 +192,7 @@ const DomainColoringGL: React.FC = () => {
                     >
                         <planeGeometry attach="geometry" args={[100, 100]} />
                         <shaderMaterial
+                            key={JSON.stringify(uniforms)}
                             ref={shaderRef}
                             attach="material"
                             needsUpdate={true}
@@ -242,7 +205,10 @@ const DomainColoringGL: React.FC = () => {
                     </mesh>
                 </Canvas>
             </div>
-            <MouseInfoPanel screen={viewport} domain={uniformDomains} />
+            <MouseInfoPanel
+                screen={viewport}
+                domain={{ x: domainX, y: domainY }}
+            />
         </>
 
     );
