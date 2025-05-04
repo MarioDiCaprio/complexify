@@ -130,7 +130,6 @@ const DomainColoringGL: React.FC = () => {
         const {x: domX, y: domY} = autoCalculateDomain({width: viewport.width, height: viewport.height}, DEFAULT_INTERVAL, DEFAULT_INTERVAL);
         setDomainX(domX);
         setDomainY(domY);
-        console.log(viewport)
     }, [requiresReload]);
 
     ////////////////////////////////////////////////////////////////////////////////////////
@@ -168,12 +167,11 @@ const DomainColoringGL: React.FC = () => {
         },
         onPinch: pinchProps => {
             if (shaderRef.current?.uniforms) {
-                const threshold = 0.1;
-                const scaleFactor = 0.07;
-                const [pinchDX, pinchDY] = pinchProps.delta;
+                const scaleFactor = 0.035;
+                const delta = pinchProps.delta[0];
                 const fac =
-                    (pinchDX + pinchDY > threshold)? 1 + scaleFactor :
-                    (pinchDX + pinchDY < -threshold)? 1 - scaleFactor : 1;
+                    (delta > 0)? 1 - scaleFactor :
+                    (delta < 0)? 1 + scaleFactor : 1;
                 const scaledX = scaleInterval(fac, domainX);
                 const scaledY = scaleInterval(fac, domainY);
                 setDomainX(scaledX);
