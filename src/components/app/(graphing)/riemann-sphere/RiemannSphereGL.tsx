@@ -1,13 +1,14 @@
 "use client"
 
-import React, {JSX, useEffect, useRef} from "react";
+import React, {JSX, useEffect, useMemo, useState} from "react";
 import {GLSL_FOR_DOMAIN_COLORING, GLSL_FOR_RIEMANN_SPHERE} from "@/shaders/shaders";
-import {Box3, Color, DoubleSide, Euler, ShaderMaterial, Vector2, Vector3} from "three";
-import {transformInterval} from "@/shaders/utils";
+import {Box3, Color, DoubleSide, Euler, Vector2, Vector3} from "three";
+import {intervalToVector, transformInterval} from "@/shaders/utils";
 import TextLookingAtCamera from "./TextLookingAtCamera";
 import {Canvas} from "@react-three/fiber";
 import {OrbitControls} from "@react-three/drei";
 import {useStore} from "@/zustand/store";
+import {RiemannSphereDCUniforms, RiemannSphereUniforms} from "@/components/app/(graphing)/uniforms";
 
 
 const RIEMANN_SPHERE_VERTEX_SHADER = `
@@ -19,14 +20,11 @@ const RIEMANN_SPHERE_VERTEX_SHADER = `
     }
 `;
 
-function useRiemannSphereFragmentShader(): string {
-    const {glsl: code} = useStore(state => state.parsedEquations);
-    const graphSettings = useStore(state => state.graphSettings);
-
+function createRiemannSphereFragmentShader(code?: string): string {
     return `
-        bool showDarkGridLines = ${ graphSettings.showDarkGridLines };
-        bool showLightGridLines = ${ graphSettings.showLightGridLines };
-        bool isMinimalThemeEnabled = ${ graphSettings.isMinimalThemeEnabled };
+        uniform bool showDarkGridLines;
+        uniform bool showLightGridLines;
+        uniform bool isMinimalThemeEnabled;
         
         varying vec3 vertexCoord;
     
@@ -53,25 +51,18 @@ const DOMCOL_VERTEX_SHADER = `
     }
 `;
 
-function useDomcolFragmentShader(): string {
-    const {glsl: code} = useStore(state => state.parsedEquations);
-
-    const graphSettings = useStore(state => state.graphSettings);
-    const riemannSphereSettings = useStore(state => state.riemannSphere);
-
-    const opacity = riemannSphereSettings.domainColoring.opacity;
-
+function createDomcolFramgentShader(code?: string): string {
     return `
-        bool showDarkGridLines = ${ graphSettings.showDarkGridLines };
-        bool showLightGridLines = ${ graphSettings.showLightGridLines };
-        bool isMinimalThemeEnabled = ${ graphSettings.isMinimalThemeEnabled };
+        uniform float opacity;
+        uniform bool showDarkGridLines;
+        uniform bool showLightGridLines;
+        uniform bool isMinimalThemeEnabled;
+        uniform vec2 planeXRange, planeYRange;
+        uniform vec2 domainX, domainY;
         
         ${GLSL_FOR_DOMAIN_COLORING}
         
         varying vec3 vertexCoord;
-        
-        uniform vec2 planeXRange, planeYRange;
-        uniform vec2 domainX, domainY;
 
         ${ code }
         
@@ -86,7 +77,7 @@ function useDomcolFragmentShader(): string {
             );
 
             gl_FragColor = domcol(plottedFunction(z));
-            gl_FragColor.a = ${Number.isInteger(opacity)? opacity + '.' : opacity};
+            gl_FragColor.a = opacity;
         }
     `;
 }
@@ -114,24 +105,49 @@ const Z_AXIS_POSITION = new Vector3().copy(AXIS_ORIGIN).add(new Vector3(0, 0, BO
 
 
 const RiemannSphereGL: React.FC = () => {
+    const graphSettings = useStore(state => state.graphSettings);
     const riemannSphereSettings = useStore(state => state.riemannSphere);
 
-    const domcolFragmentShader = useDomcolFragmentShader();
-    const sphereFragmentShader = useRiemannSphereFragmentShader();
+    const code = useStore(state => state.parsedEquations.glsl);
+
+    const domcolFragmentShader = useMemo<string>(() => {
+        return createDomcolFramgentShader(code);
+    }, [code]);
+
+    const sphereFragmentShader = useMemo<string>(() => {
+        return createRiemannSphereFragmentShader(code);
+    }, [code]);
 
     ////////////////////////////////////////////////////////////////////////////////////////
 
-    const domcolShaderRef = useRef<ShaderMaterial>(null);
+    const [requiresReload, setRequiresReload] = useState<boolean>(false);
+
+    // force reload when code changes are detected
     useEffect(() => {
-        if (domcolShaderRef.current?.uniforms) {
-            const domX: Vector2 = domcolShaderRef.current.uniforms['domainX'].value;
-            const domY: Vector2  = domcolShaderRef.current.uniforms['domainY'].value;
-            domX.x = riemannSphereSettings.domainColoring.settings.domain.x.min;
-            domX.y = riemannSphereSettings.domainColoring.settings.domain.x.max;
-            domY.x = riemannSphereSettings.domainColoring.settings.domain.y.min;
-            domY.y = riemannSphereSettings.domainColoring.settings.domain.y.max;
-        }
-    }, [riemannSphereSettings]);
+        setRequiresReload(true);
+        setTimeout(() => {
+            setRequiresReload(false);
+        }, 200);
+    }, [domcolFragmentShader, sphereFragmentShader]);
+
+    ////////////////////////////////////////////////////////////////////////////////////////
+
+    const riemannSphereUniforms = useMemo<RiemannSphereUniforms>(() => ({
+        showDarkGridLines: { value: graphSettings.showDarkGridLines },
+        showLightGridLines: { value: graphSettings.showLightGridLines },
+        isMinimalThemeEnabled: { value: graphSettings.isMinimalThemeEnabled }
+    }), [graphSettings, riemannSphereSettings]);
+
+    const domcolUniforms = useMemo<RiemannSphereDCUniforms>(() => ({
+        showDarkGridLines: { value: graphSettings.showDarkGridLines },
+        showLightGridLines: { value: graphSettings.showLightGridLines },
+        isMinimalThemeEnabled: { value: graphSettings.isMinimalThemeEnabled },
+        opacity: { value: riemannSphereSettings.domainColoring.opacity },
+        domainX: { value: intervalToVector(riemannSphereSettings.domainColoring.settings.domain.x) },
+        domainY: { value: intervalToVector(riemannSphereSettings.domainColoring.settings.domain.y) },
+        planeXRange:  { value: new Vector2(BOUNDING_BOX_MIN.x, BOUNDING_BOX_MAX.x) },
+        planeYRange:  { value: new Vector2(BOUNDING_BOX_MIN.z, BOUNDING_BOX_MAX.z) }
+    }), [graphSettings, riemannSphereSettings]);
 
     ////////////////////////////////////////////////////////////////////////////////////////
 
@@ -160,6 +176,10 @@ const RiemannSphereGL: React.FC = () => {
                 <meshBasicMaterial color="black" />
             </TextLookingAtCamera>
         );
+    }
+
+    if (requiresReload) {
+        return <></>;
     }
 
     return (
@@ -204,8 +224,11 @@ const RiemannSphereGL: React.FC = () => {
                     <mesh>
                         <sphereGeometry attach="geometry" args={[1, riemannSphereSettings.geometry.subdivisions, riemannSphereSettings.geometry.subdivisions]} />
                         <shaderMaterial
+                            key={JSON.stringify(riemannSphereUniforms)}
                             attach="material"
                             needsUpdate={true}
+                            uniformsNeedUpdate={true}
+                            uniforms={riemannSphereUniforms}
                             vertexShader={RIEMANN_SPHERE_VERTEX_SHADER}
                             fragmentShader={sphereFragmentShader}
                             side={DoubleSide}
@@ -216,24 +239,19 @@ const RiemannSphereGL: React.FC = () => {
                     <mesh visible={riemannSphereSettings.domainColoring.visible} rotation={[Math.PI/2, 0, 0]} position={[0, BOUNDING_BOX_MIN.y, 0]}>
                         <planeGeometry attach="geometry" args={[BOUNDING_BOX_SIZE.x, BOUNDING_BOX_SIZE.z, riemannSphereSettings.geometry.subdivisions, riemannSphereSettings.geometry.subdivisions]} />
                         <shaderMaterial
-                            ref={domcolShaderRef}
+                            key={JSON.stringify(domcolUniforms)}
                             attach="material"
                             needsUpdate={true}
                             uniformsNeedUpdate={true}
+                            uniforms={domcolUniforms}
                             vertexShader={DOMCOL_VERTEX_SHADER}
                             fragmentShader={domcolFragmentShader}
-                            uniforms={{
-                                planeXRange:  { value: new Vector2(BOUNDING_BOX_MIN.x, BOUNDING_BOX_MAX.x) },
-                                planeYRange:  { value: new Vector2(BOUNDING_BOX_MIN.z, BOUNDING_BOX_MAX.z) },
-                                domainX: { value: new Vector2(-2, 2) },
-                                domainY: { value: new Vector2(-2, 2) }
-                            }}
                             transparent={true}
                             side={DoubleSide}
                         />
                     </mesh>
 
-                    <gridHelper visible={!riemannSphereSettings.domainColoring.visible} args={[BOUNDING_BOX_SIZE.x, 6, HELPER_COLOR_LIGHT, HELPER_COLOR_DARK]} position={[0, BOUNDING_BOX_MIN.y, 0]} />
+                    <gridHelper visible={riemannSphereSettings.domainColoring.visible} args={[BOUNDING_BOX_SIZE.x, 6, HELPER_COLOR_LIGHT, HELPER_COLOR_DARK]} position={[0, BOUNDING_BOX_MIN.y, 0]} />
                 </Canvas>
             </div>
         </>

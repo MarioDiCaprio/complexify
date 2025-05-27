@@ -12,7 +12,7 @@ import {
 import {GLSL_FOR_DOMAIN_COLORING} from "@/shaders/shaders";
 import {useStore} from "@/zustand/store";
 import MouseInfoPanel from "@/components/app/(graphing)/domain-coloring/MouseInfoPanel";
-import {IUniform} from "three";
+import {DomainColoringUniforms} from "@/components/app/(graphing)/uniforms";
 
 
 ////////////////////////////////////////////////////////////////////////////////////////
@@ -25,13 +25,11 @@ const VERTEX_SHADER = `
     }
 `;
 
-function useDomcolFragmentShader(code?: string): string {
-    const graphSettings = useStore(store => store.graphSettings);
-
+function domcolFragmentShader(code?: string): string {
     return `
-        bool showDarkGridLines = ${ graphSettings.showDarkGridLines };
-        bool showLightGridLines = ${ graphSettings.showLightGridLines };
-        bool isMinimalThemeEnabled = ${ graphSettings.isMinimalThemeEnabled };
+        uniform bool showDarkGridLines;
+        uniform bool showLightGridLines;
+        uniform bool isMinimalThemeEnabled;
     
         ${GLSL_FOR_DOMAIN_COLORING}
         
@@ -63,7 +61,12 @@ function useDomcolFragmentShader(code?: string): string {
  */
 const DomainColoringGL: React.FC = () => {
     const {glsl: code} = useStore(state => state.parsedEquations);
-    const fragmentShader = useDomcolFragmentShader(code);
+    const graphSettings = useStore(store => store.graphSettings);
+
+    const fragmentShader = useMemo<string>(() => {
+        return domcolFragmentShader(code);
+    }, [code]);
+
     const [requiresReload, setRequiresReload] = useState<boolean>(false);
 
     // force reload when code changes are detected
@@ -72,7 +75,7 @@ const DomainColoringGL: React.FC = () => {
         setTimeout(() => {
             setRequiresReload(false);
         }, 200);
-    }, [code, fragmentShader]);
+    }, [fragmentShader]);
 
     ////////////////////////////////////////////////////////////////////////////////////////
 
@@ -91,22 +94,18 @@ const DomainColoringGL: React.FC = () => {
 
     ////////////////////////////////////////////////////////////////////////////////////////
 
-    type DomainColoringUniforms = {
-        screenWidth: IUniform<number>;
-        screenHeight: IUniform<number>;
-        domainX: IUniform<THREE.Vector2>;
-        domainY: IUniform<THREE.Vector2>;
-    }
-
     // Initial uniforms for the shader material.
     // Ignored after first render for interactivity purposes!
     // To access them later on, access them directly from the shader material.
     const uniforms = useMemo<DomainColoringUniforms>(() => ({
+        showDarkGridLines: { value: graphSettings.showDarkGridLines },
+        showLightGridLines: { value: graphSettings.showLightGridLines },
+        isMinimalThemeEnabled: { value: graphSettings.isMinimalThemeEnabled },
         screenWidth:  { value: viewport.width  },
         screenHeight: { value: viewport.height },
         domainX: { value: intervalToVector(domainX) },
         domainY: { value: intervalToVector(domainY) },
-    }), [viewport, domainX, domainY]);
+    }), [viewport, domainX, domainY, graphSettings]);
 
     ////////////////////////////////////////////////////////////////////////////////////////
 
@@ -180,6 +179,10 @@ const DomainColoringGL: React.FC = () => {
         }
     }, { target: containerRef });
 
+    // briefly de-couple canvas if fragment shader changed
+    if (requiresReload) {
+        return <></>;
+    }
 
     return (
         <>
